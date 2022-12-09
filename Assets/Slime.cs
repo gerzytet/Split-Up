@@ -9,6 +9,7 @@ public class Slime : MonoBehaviour
     public int mass;
     public Slime sibling;
     public GameObject firstLaser;
+    public bool dead = false;
 
     int Size()
     {
@@ -18,6 +19,11 @@ public class Slime : MonoBehaviour
     void Split()
     {
         if (Size() <= 1)
+        {
+            return;
+        }
+
+        if (!(Vector3.Distance(transform.position, GameController.instance.spots[spot].transform.position) < 0.01f))
         {
             return;
         }
@@ -52,13 +58,28 @@ public class Slime : MonoBehaviour
     {
         other.mass += mass;
         Destroy(gameObject);
+        dead = true;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        print("Collision");
         var slime = other.gameObject.GetComponent<Slime>();
         if (slime == null || slime == sibling)
+        {
+            return;
+        }
+
+        if (slime.spot != spot)
+        {
+            return;
+        }
+
+        if (slime.dead)
+        {
+            return;
+        }
+
+        if (dead)
         {
             return;
         }
@@ -82,7 +103,7 @@ public class Slime : MonoBehaviour
             firstLaser.GetComponent<FirstLaser>().power = Size();
             return;
         }
-        firstLaser = Instantiate(GameController.instance.firstLaser, transform.position, Quaternion.identity);
+        firstLaser = Instantiate(GameController.instance.firstLaser, transform.position + (0.5f * Vector3.right), Quaternion.identity);
         firstLaser.transform.SetParent(transform);
         firstLaser.GetComponent<FirstLaser>().power = Size();
     }
@@ -95,10 +116,16 @@ public class Slime : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        transform.position = Vector2.MoveTowards(transform.position, GameController.instance.spots[spot].transform.position, 0.2f);
+    }
+
     void Update()
     {
-        transform.position = Vector2.MoveTowards(transform.position, GameController.instance.spots[spot].transform.position, 0.05f);
-        GetComponent<SpriteRenderer>().sprite = GameController.instance.slimes[Size() - 1];
+        mass = Math.Clamp(mass, 1, 8);
+        Sprite sprite = GameController.instance.slimes[Size() - 1];
+        GetComponent<SpriteRenderer>().sprite = sprite;
 
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
@@ -108,17 +135,16 @@ public class Slime : MonoBehaviour
             MoveUp();
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Split();
-        }
-        
         if (Input.GetKey(KeyCode.X))
         {
             Shoot();
         }
         else
         {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Split();
+            }
             UnShoot();
         }
     }

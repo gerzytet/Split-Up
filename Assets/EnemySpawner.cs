@@ -7,7 +7,15 @@ public class EnemySpawner : MonoBehaviour
 {
     public List<GameObject> spots;
     public List<GameObject> enemies;
-    public float difficulty = 1f;
+    public float difficulty;
+    public float speed = 0.1f;
+
+    public static EnemySpawner instance;
+
+    EnemySpawner()
+    {
+        instance = this;
+    }
 
     public double chance;
     //https://answers.unity.com/questions/421968/normal-distribution-random.html
@@ -33,9 +41,14 @@ public class EnemySpawner : MonoBehaviour
         return Mathf.Clamp(std * sigma + mean, minValue, maxValue);
     }
 
+    void Awake()
+    {
+        instance = this;
+    }
+
     GameObject chooseEnemy()
     {
-        int index = Mathf.RoundToInt(Mathf.Max(Mathf.Min(RandomGaussian(difficulty - 1, difficulty + 1), 4), 1));
+        int index = Random.Range(1, 5);
         return enemies[index - 1];
     }
     // Update is called once per frame
@@ -45,5 +58,9 @@ public class EnemySpawner : MonoBehaviour
         {
             Instantiate(chooseEnemy(), spots[Random.Range(0, spots.Count)].transform.position, Quaternion.identity);
         }
+
+        difficulty += 0.0015f;
+        chance = difficulty / 300;
+        speed = difficulty / 60;
     }
 }

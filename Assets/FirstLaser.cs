@@ -7,7 +7,7 @@ using UnityEngine;
 public class FirstLaser : MonoBehaviour
 {
     public int power = 1;
-    void Update()
+    void FixedUpdate()
     {
         GetComponent<SpriteRenderer>().sprite = GameController.instance.lasers[power - 1];
         GameObject laser = Instantiate(GameController.instance.laser, transform.position, transform.rotation);

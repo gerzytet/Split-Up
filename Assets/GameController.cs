@@ -12,7 +12,7 @@ public class GameController : MonoBehaviour
     public GameObject laser;
     public List<Sprite> lasers;
 
-    void Awake()
+    GameController()
     {
         instance = this;
     }

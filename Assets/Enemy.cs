@@ -1,12 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
     public int strength;
-    void Start()
+    void FixedUpdate()
     {
-        GetComponent<Rigidbody2D>().velocity = new Vector2(-0.5f, 0);
+        transform.position = transform.position - new Vector3(EnemySpawner.instance.speed, 0, 0 - 0);
     }
 }
